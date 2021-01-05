@@ -1,0 +1,479 @@
+ 
+Chapter 8
+Linux Basic Administration
+
+--------------------------------------------------------------------------------  
+8.1 Information on Linux – kernel and distribution version
+--------------------------------------------------------------------------------
+#1
+For CentOS 8.1
+[root@centos8s1 ~]# uname
+Linux
+[root@centos8s1 ~]# uname -o
+GNU/Linux
+[root@centos8s1 ~]# uname -r
+4.18.0-193.14.2.el8_2.x86_64
+[root@centos8s1 ~]# uname -or
+4.18.0-193.14.2.el8_2.x86_64 GNU/Linux
+
+For Ubuntu 20.04 LTS
+root@ubuntu20s1:~# uname
+Linux
+root@ubuntu20s1:~# uname -o
+GNU/Linux
+root@ubuntu20s1:~# uname -r
+5.4.0-47-generic
+root@ubuntu20s1:~# uname -or
+5.4.0-47-generic GNU/Linux
+
+#2
+[root@centos8s1 ~]# uname –a                     # -a option for all
+
+[root@centos8s1 ~]# uname -n                     # -n for name or hostname
+
+[root@centos8s1 ~]# uname -r                     # -r for Linux kernel version
+
+[root@centos8s1 ~]# uname -m                     # -m for system architecture
+
+[root@centos8s1 ~]# uname -v                     # -v for system time and timezone
+
+[root@centos8s1 ~]# uname -rnmv                     # combined options
+
+
+#3
+For CentOS 8.1
+[root@centos8s1 ~]# grep saved_entry /boot/grub2/grubenv
+
+#4
+For CentOS 8.1
+[root@centos8s1 ~]# hostnamectl
+
+For Ubuntu 20.04 LTS
+root@ubuntu20s1:~# hostnamectl
+$5
+For CentOS 8.1
+[root@centos8s1 ~]# lsb_release -d
+[root@centos8s1 ~]# yum install -y redhat-lsb
+[root@centos8s1 ~]# lsb_release -d
+
+For Ubuntu 20.04 LTS
+root@ubuntu20s1:~# lsb_release -d
+Description:    Ubuntu 20.04.1 LTS
+root@ubuntu20s1:~# lsb_release -sc
+
+#6
+For CentOS 8.1
+[root@centos8s1 ~]# cat /etc/centos-release
+
+[root@centos8s1 ~]# cat /etc/system-release
+
+#7
+[root@centos8s1 ~]# cat /etc/*release
+
+--------------------------------------------------------------------------------
+8.2 Information on Linux – netstat command to validate TCP/UDP ports
+--------------------------------------------------------------------------------
+#1
+[root@centos8s1 ~]# netstat -i
+
+#2
+For CentOS 8.1, install and start nginx webserver
+[root@centos8s1 ~]# yum install -y nginx
+[root@centos8s1 ~]# whatis nginx
+
+[root@centos8s1 ~]# whereis nginx
+
+[root@centos8s1 ~]# systemctl start nginx
+[root@centos8s1 ~]# netstat -tulpn | grep :80
+
+#3
+[root@centos8s1 ~]# firewall-cmd --permanent --add-service=http
+
+[root@centos8s1 ~]# firewall-cmd --permanent --list-all
+
+[root@centos8s1 ~]# firewall-cmd --reload
+
+[root@centos8s1 ~]# ip addr show ens160 | grep inet | awk '{ print $2; }' | sed 's/\/.*$//'
+
+[root@centos8s1 ~]# ip add
+
+#4
+For TCP
+[root@centos8s1 ~]# netstat -at
+
+For UDP
+[root@centos8s1 ~]# netstat -au
+
+#5
+[root@centos8s1 ~]# netstat -l
+
+#6
+netstat -lt
+netstat -lu
+
+#7
+netstat –an | grep ‘:22’ <<< for SSH service
+[root@centos8s1 ~]# netstat -an | grep ':22'
+
+netstat –an | grep ‘:80’  <<< for http service
+[root@centos8s1 ~]# netstat -an | grep ':80'
+
+#8
+[root@centos8s1 ~]# netstat -ap | grep ssh
+
+#9
+ [root@centos8s1 ~]# netstat -pt
+
+#10
+[root@centos8s1 ~]# netstat –s
+[root@centos8s1 ~]# netstat –st
+[root@centos8s1 ~]# netstat -su
+
+--------------------------------------------------------------------------------
+8.3 Installing TFTP, FTP, SFTP, and NTP Servers
+--------------------------------------------------------------------------------
+8.3.1 FTP Server Installation
+--------------------------------------------------------------------------------
+#1
+[root@centos8s1 ~]# vsftpd -version
+
+[root@centos8s1 ~]# sudo yum makecache
+[root@centos8s1 ~]# yum install -y vsftpd
+
+#2
+[root@centos8s1 ~]# systemctl status vsftpd
+
+#3
+[root@centos8s1 ~]# systemctl enable vsftpd --now
+[root@centos8s1 ~]# systemctl status vsftpd
+
+#4
+[root@centos8s1 ~]# nano /etc/vsftpd/vsftpd.conf
+
+### ADDED by Admin ###
+# Use user_list
+userlist_file=/etc/vsftpd/user_list
+userlist_deny=NO
+# Allow writeable_chroot to the user
+allow_writeable_chroot=YES
+# Control passive port range to use between 40000-41000
+pasv_enable=YES
+pasv_min_port=40000
+pasv_max_port=41000
+# Use ftp directory under /home/user/
+user_sub_token=$USER
+local_root=/home/$USER/ftp
+
+
+[pynetauto@centos8s1 ~]$ mkdir ftp
+
+#5
+[root@centos8s1 ~]# vi /etc/vsftpd/user_list
+
+#6
+firewall-cmd --add-service=ftp --permanent
+(OR firewall-cmd --permanent --add-port=20-21/tcp)
+firewall-cmd --permanent --add-port=40000-41000/tcp
+setsebool -P ftpd_full_access on
+firewall-cmd --reload
+
+#7
+systemctl enable vsftpd.service
+systemctl start vsftpd.service
+systemctl restart vsftpd.service
+systemctl stop vsftpd.service
+systemctl status vsftpd.service
+
+netstat -ap | grep ftp
+netstat -tupan | grep 21
+netstat -na | grep tcp6
+
+#8
+ftp://192.168.183.130/
+
+#9
+Download URL: https://filezilla-project.org/download.php?platform=win64
+
+Tip: enter ftp://192.168.183.130 in the Host: field.
+
+#9
+Download URL: https://winscp.net/eng/download.php
+
+--------------------------------------------------------------------------------
+8.3.2 Install SFTP Server
+--------------------------------------------------------------------------------
+#1
+# To add a new user
+[root@centos8s1 ~]# adduser sftpuser
+[root@centos8s1 ~]# passwd sftpuser
+
+# To remove a user
+[root@centos8s1 ~]# userdel -r sftpuser
+
+#2
+[root@centos8s1 ~]# mkdir -p /var/sftp/
+[root@centos8s1 ~]# mkdir -p /var/sftp/sftpdata
+
+#3
+[root@centos8s1 ~]# chown root:root /var/sftp
+[root@centos8s1 ~]# chmod 755 /var/sftp
+[root@centos8s1 ~]# chown sftpuser:sftpuser /var/sftp/sftpdata
+
+#4
+[root@centos8s1 ~]# nano vi /etc/ssh/sshd_config
+
+# Add the following to the end of the file.
+### ADDED by Admin ###
+Match User sftpuser
+ForceCommand internal-sftp
+PasswordAuthentication yes
+ChrootDirectory /var/sftp
+PermitTunnel no
+AllowAgentForwarding no
+AllowTcpForwarding no
+X11Forwarding no
+
+#5
+ [root@centos8s1 ~]# systemctl restart sshd
+
+#6
+[root@centos8s1 ~]# ssh sftpuser@192.168.183.130
+
+#7
+[root@centos8s1 ~]# sftp sftpuser@192.168.183.130
+
+#8
+[root@centos8s1 ~]# netstat -ap | grep sshd
+[root@centos8s1 ~]# netstat -tupan | grep 22
+[root@centos8s1 ~]# netstat -na | grep tcp6
+
+#9
+
+--------------------------------------------------------------------------------
+8.3.3 Installing the TFTP Server
+--------------------------------------------------------------------------------
+#1
+[root@centos8s1 ~]# systemctl status firewalld
+
+#2
+[root@centos8s1 ~]# firewall-cmd --permanent --zone=public --add-service=tftp
+[root@centos8s1 ~]# firewall-cmd --reload
+
+#3
+[root@centos8s1 ~]# yum install xinetd tftp-server tftp
+[root@centos8s1 ~]# systemctl enable xinetd tftp
+[root@centos8s1 ~]# systemctl start xinetd tftp
+
+[root@centos8s1 ~]# systemctl status xinetd
+
+#4
+[root@centos8s1 ~]# useradd -s /bin/false -r tftpuser
+
+#5
+[root@centos8s1 ~]# mkdir /var/tftpdir
+
+#6
+[root@centos8s1 ~]# chown tftpuser:tftpuser /var/tftpdir
+[root@centos8s1 ~]# chmod 777 /var/tftpdir
+
+#7
+ [root@centos8s1 ~]# nano /etc/xinetd.d/tftp
+
+service tftp
+{
+        socket_type = dgram
+        protocol = udp
+        wait = yes
+        user = root
+        server = /usr/sbin/in.tftpd
+        server_args = -c -s /var/tftpdir -v -v -v -u tftpuser -p
+        disable = no
+        per_source = 11
+        cps = 100 2
+        flags = IPv4
+}
+
+
+#8
+[root@centos8s1 ~]# chcon -t tftpdir_rw_t /var/tftpdir
+
+[root@centos8s1 ~]# systemctl restart xinetd tftp
+
+#9
+[root@centos8s1 ~]# nano /etc/selinux/config
+
+[root@centos8s1 ~]# getsebool -a | grep tftp
+tftp_anon_write --> off
+tftp_home_dir --> off
+
+Update SELinux Boolean values of tftp_anon_write and tftp_home_dir.
+
+[root@centos8s1 ~]# setsebool -P tftp_anon_write 1
+[root@centos8s1 ~]# setsebool -P tftp_home_dir 1
+[root@centos8s1 ~]# getsebool -a | grep tftp
+
+
+[root@centos8s1 ~]# systemctl restart xinetd tftp
+
+#10
+10a
+root@ubuntu20s1:~# apt install tftp
+
+10b.
+root@ubuntu20s1:~# nano transfer_file01
+This is a file transfer test file only.
+Please contact the administrator if you have any issues.
+
+root@ubuntu20s1:~# cat transfer_file01
+This is a file transfer test file only.
+Please contact the administrator if you have any issues.
+
+10c.
+root@ubuntu20s1:~# tftp 192.168.183.130
+tftp> put transfer_file01
+Sent 99 bytes in 0.0 seconds
+tftp>
+
+
+[root@centos8s1 ~]# ls -lh /var/tftpdir
+
+10d.
+[root@centos8s1 ~]# cp /var/tftpdir/transfer_file01 /var/tftpdir/transfer_file77
+[root@centos8s1 ~]# ls /var/tftpdir
+transfer_file01  transfer_file77
+
+root@ubuntu20s1:~# tftp 192.168.183.130
+tftp> get transfer_file77
+Received 99 bytes in 0.0 seconds
+
+tftp> ^Z # Use Ctrl+Z to exit tftp mode
+[1]+  Stopped                 tftp 192.168.183.130
+root@ubuntu20s1:~# ls transfer*
+transfer_file01  transfer_file77
+
+
+netstat -na | grep udp6
+netstat –lu
+netstat –ap | grep tftp
+netstat -tupan
+netstat –tupan | grep 69
+	
+--------------------------------------------------------------------------------
+8.3.4 Installing NTP Server
+--------------------------------------------------------------------------------
+#1
+1a. 
+[root@centos8s1 ~]# clock
+
+1b. 
+[root@centos8s1 ~]# timedatectl
+
+1c. 
+[root@centos8s1 ~]# timedatectl list-timezones
+
+1d. 
+[root@centos8s1 ~]# timedatectl set-timezone Australia/Sydney 
+
+1e. 
+[root@centos8s1 ~]# clock
+
+[root@centos8s1 ~]# date
+
+#2
+[root@centos8s1 ~]# dnf install chrony
+
+#3
+[root@centos8s1 ~]# systemctl enable chronyd
+
+#4
+[root@centos8s1 ~]# vi /etc/chrony.conf
+
+Restart the chronyd service to make the changes take affect.
+[root@centos8s1 ~]# systemctl stop chronyd
+[root@centos8s1 ~]# systemctl start chronyd
+[root@centos8s1 ~]# systemctl status chronyd
+
+#5
+[root@centos8s1 ~]# firewall-cmd --permanent --add-service=ntp
+
+[root@centos8s1 ~]# firewall-cmd --reload
+
+#6
+[root@centos8s1 ~]#  systemctl restart chronyd
+
+#7
+7a. 
+root@ubuntu20s1:~# timedatectl
+
+root@ubuntu20s1:~# timedatectl set-timezone Australia/Sydney
+root@ubuntu20s1:~# timedatectl
+
+7b. 
+root@ubuntu20s1:~# date
+
+7c. 
+root@ubuntu20s1:~# apt-get install ntpdate
+
+7d. 
+root@ubuntu20s1:~# ntpdate –d 192.168.183.130
+
+root@ubuntu20s1:~# date
+
+[root@centos8s1 ~]# date
+
+#8
+
+--------------------------------------------------------------------------------
+8.4 Linux TCP/IP Troubleshooting exercise
+--------------------------------------------------------------------------------
+#1
+For CentOS server
+[root@centos8s1 ~]# cat /proc/sys/net/ipv4/icmp_echo_ignore_all
+
+For Ubuntu serve
+root@ubuntu20s1:~# cat /proc/sys/net/ipv4/icmp_echo_ignore_all
+
+
+root@ubuntu20s1:~# nano /proc/sys/net/ipv4/icmp_echo_ignore_all
+root@ubuntu20s1:~# cat /proc/sys/net/ipv4/icmp_echo_ignore_all
+
+[root@centos8s1 ~]# ping 192.168.183.130
+root@ubuntu20s1:~# ping 192.168.183.130 -c 4
+
+[root@centos8s1 ~]# ping 192.168.183.132 -c 4
+
+#2
+2a. FTP connection test:
+root@ubuntu20s1:~# telnet 192.168.183.130 21
+
+2b. SSH/SFTP connection test:
+root@ubuntu20s1:~# telnet 192.168.183.130 22
+
+#3
+
+3a. Run netstat –tulnp command from your Ubuntu server.
+root@ubuntu20s1:~# netstat -tulnp
+
+3b. Run netstat –tuna command from your Ubuntu server.
+root@ubuntu20s1:~# netstat -tuna
+
+#4
+
+[root@centos8s1 ~]# ss –nutlp
+OR
+root@ubuntu20s1:~# ss -nutlp 
+ 
+#5
+[root@centos8s1 ~]# lsof –i
+OR
+root@ubuntu20s1:~# lsof -i
+
+#6
+root@ubuntu20s1:~# iptables -xvn –L
+OR
+[root@centos8s1 ~]# iptables -xvn -L
+
+#7
+PS C:\Users\brendan> test-NetConnection -ComputerName 192.168.183.130 -Port 21
+
+ 
