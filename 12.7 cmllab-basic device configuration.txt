@@ -1,0 +1,169 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! R1 configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+configure terminal
+!
+hostname R1
+!
+interface FastEthernet0/0
+no ip address dhcp
+ip address 192.168.183.133 255.255.255.0 
+speed 100 
+duplex full 
+no shut
+!
+interface FastEthernet0/1
+ip address 7.7.7.2 255.255.255.0
+speed 100
+full-duplex
+no shut
+exit 
+!
+ip domain-lookup 
+ip name-server 192.168.183.2 
+ip route 0.0.0.0 0.0.0.0 192.168.183.2 
+router ospf 1 
+network 0.0.0.0 255.255.255.255 area 0
+end 
+write memory
+!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! LAB-SW1 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+enable
+!
+configure terminal
+!
+hostname LAB-SW1
+!
+int vlan1
+ip add 192.168.183.101 255.255.255.0
+no shut
+exit
+!
+enable password cisco123 
+username pynetauto privilege 15 password cisco123 
+!
+line vty 0 15
+login local 
+transport input all 
+logging synchronous 
+no exec-timeout 
+!
+line console 0 
+logging synchronous 
+no exec-timeout 
+end 
+!
+copy running-config startup-config  
+!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! lab-sw2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+enable
+!
+configure terminal
+!
+hostname lab-sw2
+!
+int vlan1
+ip add 192.168.183.102 255.255.255.0
+no shut
+exit
+!
+enable password cisco123 
+username pynetauto privilege 15 password cisco123 
+!
+line vty 0 15
+login local 
+transport input all 
+logging synchronous 
+no exec-timeout 
+!
+line console 0 
+logging synchronous 
+no exec-timeout 
+end 
+!
+copy running-config startup-config  
+!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! LAB-R1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+configure terminal
+!
+hostname LAB-R1
+ip domain-lookup 
+ip name-server 192.168.183.2 
+ip route 0.0.0.0 0.0.0.0 192.168.183.2 
+!
+int GigabitEthernet0/0
+ip add 192.168.183.10 255.255.255.0
+no shut
+exit
+!
+int GigabitEthernet0/1
+ip add 172.168.1.1 255.255.255.0
+no shut
+exit
+!
+enable password cisco123 
+username pynetauto privilege 15 password cisco123 
+!
+line vty 0 15
+login local 
+transport input all 
+logging synchronous 
+no exec-timeout 
+!
+line console 0 
+logging synchronous 
+no exec-timeout 
+end 
+!
+copy running-config startup-config  
+!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! lab-r2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+configure terminal
+!
+hostname lab-r2
+ip domain-lookup 
+ip name-server 192.168.183.2 
+ip route 0.0.0.0 0.0.0.0 192.168.183.2 
+!
+int GigabitEthernet0/0
+ip add 192.168.183.20 255.255.255.0
+no shut
+exit
+!
+int GigabitEthernet0/1
+ip add 172.168.1.2 255.255.255.0
+no shut
+exit
+!
+enable password cisco123 
+username pynetauto privilege 15 password cisco123 
+!
+line vty 0 15
+login local 
+transport input all 
+logging synchronous 
+no exec-timeout 
+!
+line console 0 
+logging synchronous 
+no exec-timeout 
+end 
+!
+copy running-config startup-config  
+!
